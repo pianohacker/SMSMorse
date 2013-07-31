@@ -150,6 +150,7 @@ public class EventReceiver extends BroadcastReceiver {
 			Log.i(EventReceiver.TAG, "Parsed to: " + EventReceiver.parseMorse(extras.getLongArray(PARSE_MORSE_KEY)));
 		}*/
 		else if (action.equals(EventReceiver.SMS_RECEIVED)) {
+			Log.d(EventReceiver.TAG, "Got SMS");
 			final boolean smsValid      = extras != null;
 			final boolean enabled       = this.settings.getBoolean(this.resources.getString(R.string.preference_enabled), EventReceiver.DEFAULT_ENABLED);
 			final boolean keygaurdOn    = ((KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE)).inKeyguardRestrictedInputMode();
@@ -163,6 +164,7 @@ public class EventReceiver extends BroadcastReceiver {
 			);
 			
 			if (smsValid && enabled && activeAudioMode && (keygaurdOn || !screenOffOnly)) {
+				Log.d(EventReceiver.TAG, "Handling SMS");
 				//Create SMSMessages from PDUs in the Bundle
 				final Object[] pdus = (Object[])extras.get("pdus");
 				final SmsMessage[] messages = new SmsMessage[pdus.length];
@@ -202,7 +204,21 @@ public class EventReceiver extends BroadcastReceiver {
 			final Cursor results = context.getContentResolver().query(Contacts.Phones.CONTENT_URI, projection, selection, null, Contacts.ContactMethods.PERSON_ID);
 			
 			if (results.moveToFirst()) {
-				return this.convertToVibrations(results.getString(results.getColumnIndex(Contacts.PeopleColumns.DISPLAY_NAME)));
+				String name = results.getString(results.getColumnIndex(Contacts.PeopleColumns.DISPLAY_NAME));
+
+				if (this.settings.getBoolean(context.getString(R.string.preference_contact_name_initials), false)) {
+					String parts[] = name.split(" +");
+					StringBuilder result = new StringBuilder();
+
+					for (String part: parts) {
+						result.append(part.charAt(0));
+						result.append(" ");
+					}
+
+					return this.convertToVibrations(result.toString().trim());
+				} else {
+					return this.convertToVibrations(name);
+				}
 			}
 		}
 		return this.convertToVibrations(sender, true);

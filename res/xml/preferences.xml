@@ -20,6 +20,11 @@
 			android:summary="@string/preference_lookup_contact_name_summary"
 			android:defaultValue="true"/>
 		<CheckBoxPreference
+			android:key="@string/preference_contact_name_initials"
+			android:title="@string/preference_contact_name_initials_title"
+			android:summary="@string/preference_contact_name_initials_summary"
+			android:defaultValue="false"/>
+		<CheckBoxPreference
 			android:key="@string/preference_vibrate_counts"
 			android:title="@string/preference_vibrate_counts_title"
 			android:summary="@string/preference_vibrate_counts_summary"
